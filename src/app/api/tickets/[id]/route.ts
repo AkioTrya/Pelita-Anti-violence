@@ -7,7 +7,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // PATCH /api/tickets/[id] — update status (admin/consultant only)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const limited = rateLimit(req, 30);
   if (limited) return limited;
@@ -19,11 +19,12 @@ export async function PATCH(
   if (user.role !== "admin" && user.role !== "consultant")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const { id } = await params;
   const body = await req.json();
   const { status } = body;
 
   const ticket = await prisma.ticket.update({
-    where: { id: params.id },
+    where: { id },
     data: { status },
   });
 
