@@ -7,7 +7,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // GET /api/chat/[ticketId] — get messages for a ticket
 export async function GET(
   req: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: Promise<{ ticketId: string }> }
 ) {
   const limited = rateLimit(req, 60);
   if (limited) return limited;
@@ -15,8 +15,10 @@ export async function GET(
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { ticketId } = await params;
+
   const messages = await prisma.message.findMany({
-    where: { ticketId: params.ticketId },
+    where: { ticketId },
     include: { user: { select: { name: true, role: true } } },
     orderBy: { createdAt: "asc" },
   });
@@ -27,13 +29,15 @@ export async function GET(
 // POST /api/chat/[ticketId] — send a message
 export async function POST(
   req: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: Promise<{ ticketId: string }> }
 ) {
   const limited = rateLimit(req, 30);
   if (limited) return limited;
 
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { ticketId } = await params;
 
   const user = session.user as { id?: string };
   const body = await req.json();
@@ -49,7 +53,7 @@ export async function POST(
     data: {
       content: sanitizeInput(content.trim()),
       userId: user.id!,
-      ticketId: params.ticketId,
+      ticketId,
     },
     include: { user: { select: { name: true, role: true } } },
   });

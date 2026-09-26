@@ -38,13 +38,17 @@ export async function POST(req: NextRequest) {
   const famiraHash = await bcrypt.hash("Famira@2026!", 12);
   const firdaHash = await bcrypt.hash("Firda@2026!", 12);
 
-  await prisma.user.createMany({
-    data: [
-      { name: "Famira", username: "famira", password: famiraHash, role: "consultant" },
-      { name: "Firda", username: "firda", password: firdaHash, role: "consultant" },
-    ],
-    skipDuplicates: true,
-  });
+  const consultants = [
+    { name: "Famira", username: "famira", password: famiraHash, role: "consultant" },
+    { name: "Firda", username: "firda", password: firdaHash, role: "consultant" },
+  ];
+
+  for (const c of consultants) {
+    const exists = await prisma.user.findUnique({ where: { username: c.username } });
+    if (!exists) {
+      await prisma.user.create({ data: c });
+    }
+  }
 
   return NextResponse.json({ message: "Admin dan konsultan berhasil dibuat." });
 }
