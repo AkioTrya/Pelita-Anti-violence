@@ -47,7 +47,7 @@ export function Header() {
                 Masuk
               </Button>
             </Link>
-            <Link href="/login">
+            <Link href="/login?mode=register">
               <Button className="rounded-full px-4 shadow-sm">
                 Daftar
               </Button>
@@ -90,7 +90,7 @@ export function Header() {
                   Masuk
                 </Button>
               </Link>
-              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/login?mode=register" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button className="w-full rounded-full justify-center">
                   Daftar
                 </Button>
