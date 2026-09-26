@@ -41,7 +41,19 @@ export function Header() {
         
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Link href="/profil" className="hidden sm:flex">
+          <div className="hidden sm:flex items-center gap-2">
+            <Link href="/login">
+              <Button variant="outline" className="rounded-full px-4">
+                Masuk
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button className="rounded-full px-4 shadow-sm">
+                Daftar
+              </Button>
+            </Link>
+          </div>
+          <Link href="/profil" className="hidden md:flex">
             <Button variant="outline" className="rounded-full gap-2">
               <User className="h-4 w-4" />
               <span>Profil</span>
@@ -72,7 +84,17 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border space-y-3">
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full rounded-full justify-center">
+                  Masuk
+                </Button>
+              </Link>
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button className="w-full rounded-full justify-center">
+                  Daftar
+                </Button>
+              </Link>
               <Link href="/profil" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" className="w-full rounded-full gap-2 justify-center">
                   <User className="h-4 w-4" />
