@@ -1,87 +1,139 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { GraduationCap, HeartHandshake, ShieldAlert, BookOpen, User, PhoneCall } from "lucide-react";
+import { Shield, MessageCircle, BookOpen, Heart, ChevronRight } from "lucide-react";
 
 export default function Home() {
+  const [safeCount, setSafeCount] = useState<number | null>(null);
+  const [counting, setCounting] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/safe-count")
+      .then((r) => r.json())
+      .then((d) => setSafeCount(d.count))
+      .catch(() => setSafeCount(0));
+  }, []);
+
+  const handleSafeCount = async () => {
+    if (counting) return;
+    setCounting(true);
+    const res = await fetch("/api/safe-count", { method: "POST" });
+    const data = await res.json();
+    setSafeCount(data.count);
+    setTimeout(() => setCounting(false), 2000);
+  };
+
   const actions = [
     {
-      title: "Kembali Sekolah",
-      icon: <GraduationCap className="h-8 w-8 mb-4 text-primary" />,
-      href: "/pendidikan",
-      color: "bg-rose-50 border-rose-100 hover:border-primary/50",
-    },
-    {
-      title: "Konseling",
-      icon: <HeartHandshake className="h-8 w-8 mb-4 text-primary" />,
       href: "/konseling",
-      color: "bg-amber-50 border-amber-100 hover:border-secondary/80",
+      icon: <MessageCircle className="h-8 w-8 text-purple-500" />,
+      title: "Konseling",
+      desc: "Bicara dengan konsultan",
+      color: "border-purple-100 hover:border-purple-300 bg-purple-50/50",
     },
     {
-      title: "Lapor & Perlindungan",
-      icon: <ShieldAlert className="h-8 w-8 mb-4 text-primary" />,
       href: "/lapor",
-      color: "bg-red-50 border-red-100 hover:border-red-400",
+      icon: <Shield className="h-8 w-8 text-red-500" />,
+      title: "Lapor",
+      desc: "Sampaikan laporanmu",
+      color: "border-red-100 hover:border-red-300 bg-red-50/50",
     },
     {
-      title: "Beasiswa",
-      icon: <BookOpen className="h-8 w-8 mb-4 text-primary" />,
-      href: "/pendidikan",
-      color: "bg-blue-50 border-blue-100 hover:border-blue-400",
-    },
-    {
-      title: "Pelatihan",
-      icon: <User className="h-8 w-8 mb-4 text-primary" />,
-      href: "/pendidikan",
-      color: "bg-purple-50 border-purple-100 hover:border-purple-400",
-    },
-    {
-      title: "Bantuan Darurat",
-      icon: <PhoneCall className="h-8 w-8 mb-4 text-primary" />,
-      href: "/darurat",
-      color: "bg-orange-50 border-orange-100 hover:border-orange-400",
+      href: "/edukasi",
+      icon: <BookOpen className="h-8 w-8 text-amber-500" />,
+      title: "Edukasi",
+      desc: "Pelajari hak-hakmu",
+      color: "border-amber-100 hover:border-amber-300 bg-amber-50/50",
     },
   ];
 
-  return (
-    <div className="container mx-auto px-4 py-12 md:py-24 max-w-5xl">
-      <div className="text-center mb-16 space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight">
-          Halo, kamu ingin <span className="text-primary relative inline-block">
-            mencari bantuan
-            <span className="absolute bottom-1 left-0 w-full h-3 bg-secondary/30 -z-10 -rotate-1"></span>
-          </span> apa hari ini?
-        </h1>
-        <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
-          PELITA siap mendampingi kamu menemukan jalur yang tepat. Jangan ragu untuk memilih layanan di bawah ini.
-        </p>
-      </div>
+  const contacts = [
+    { label: "Dinas Pendidikan", href: "/konseling#pendidikan", icon: "🎓" },
+    { label: "Dinas Perlindungan Perempuan dan Anak", href: "/konseling#perlindungan", icon: "🛡️" },
+    { label: "Guru BK", href: "/konseling#bk", icon: "📚" },
+    { label: "Teman Sebaya", href: "/konseling#teman", icon: "💬" },
+  ];
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {actions.map((action, index) => (
-          <Link href={action.href} key={index} className="group block">
-            <Card className={`h-full transition-all duration-300 transform group-hover:-translate-y-1 group-hover:shadow-md ${action.color}`}>
-              <CardContent className="p-6 md:p-8 flex flex-col items-center justify-center text-center h-full">
-                <div className="p-4 rounded-full bg-white shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Hero */}
+        <section className="text-center py-10 md:py-16">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6 animate-pulse">
+            <span>🕯️</span> Perlindungan dan Edukasi Layanan Inklusif
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4 leading-tight">
+            Halo, kamu ingin<br />
+            <span className="text-secondary">mencari bantuan</span> apa hari ini?
+          </h1>
+          <p className="text-foreground/60 max-w-lg mx-auto text-sm md:text-base mb-8">
+            PELITA hadir untuk mendampingimu menemukan jalur yang tepat — aman, mudah, dan terhubung.
+          </p>
+        </section>
+
+        {/* Main Action Cards */}
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          {actions.map((action) => (
+            <Link key={action.href} href={action.href} className="group block">
+              <div className={`h-full border-2 rounded-2xl p-6 text-center transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg ${action.color}`}>
+                <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
                   {action.icon}
                 </div>
-                <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">{action.title}</h3>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+                <h3 className="font-bold text-lg text-foreground">{action.title}</h3>
+                <p className="text-sm text-foreground/50 mt-1">{action.desc}</p>
+                <div className="flex items-center justify-center gap-1 mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-all">
+                  Selengkapnya <ChevronRight className="h-3 w-3" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </section>
 
-      <div className="mt-20 text-center bg-white rounded-3xl p-8 border border-border shadow-sm">
-        <h3 className="text-2xl font-bold mb-4">Bingung harus mulai dari mana?</h3>
-        <p className="text-foreground/70 mb-8 max-w-xl mx-auto">
-          Jawab beberapa pertanyaan singkat dan PELITA akan merekomendasikan bantuan yang paling sesuai untukmu.
-        </p>
-        <Link href="/bantuan">
-          <Button size="lg" className="rounded-full shadow-md text-base px-8 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-            Mulai Kuesioner Bantuan
-          </Button>
-        </Link>
+        {/* Safe Counter */}
+        <section className="bg-gradient-to-r from-primary to-primary/80 text-white rounded-2xl p-6 md:p-8 mb-10 text-center shadow-lg">
+          <Heart className="h-8 w-8 mx-auto mb-3 animate-pulse" />
+          <h2 className="text-xl font-bold mb-1">Penghitung Aman</h2>
+          <p className="text-white/70 text-sm mb-4">Klik tombol di bawah jika kamu merasa aman hari ini 💙</p>
+          <div className="text-5xl font-bold mb-4">
+            {safeCount === null ? "..." : safeCount.toLocaleString()}
+          </div>
+          <p className="text-white/60 text-xs mb-5">orang merasa aman bersama PELITA</p>
+          <button
+            onClick={handleSafeCount}
+            disabled={counting}
+            className="bg-white text-primary font-bold px-8 py-3 rounded-full hover:bg-white/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
+          >
+            {counting ? "✅ Terima kasih!" : "Aku Merasa Aman Hari Ini"}
+          </button>
+        </section>
+
+        {/* Quick Access Contacts */}
+        <section className="bg-white rounded-2xl border border-rose-100 shadow-sm p-6 mb-10">
+          <h2 className="font-bold text-foreground text-lg mb-4">Hubungi Langsung</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {contacts.map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-rose-50 transition-all group"
+              >
+                <span className="text-2xl">{c.icon}</span>
+                <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{c.label}</span>
+                <ChevronRight className="h-4 w-4 text-foreground/30 ml-auto group-hover:text-primary transition-all" />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Design Principle Banner */}
+        <section className="text-center py-4">
+          <div className="flex flex-wrap justify-center gap-4 text-xs font-semibold text-foreground/40">
+            {["🔒 AMAN", "💡 MUDAH", "🔗 TERHUBUNG", "🤝 DAMPINGI"].map((p) => (
+              <span key={p} className="px-3 py-1 bg-white rounded-full border border-border">{p}</span>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

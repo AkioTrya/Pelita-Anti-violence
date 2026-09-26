@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  username  String   @unique
+  password  String
+  role      String   @default("user") // "user" | "admin" | "consultant"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tickets   Ticket[]
+  messages  Message[]
+  reports   Report[]
+}
+
+model Report {
+  id              String   @id @default(cuid())
+  nama            String
+  kelas           String?
+  umur            String
+  kategori        String   // e.g. kekerasan, pernikahan_dini, bullying, putus_sekolah, masalah_pribadi
+  lokasi          String   // siswa | masyarakat_umum
+  deskripsi       String
+  harapan         String?
+  status          String   @default("open") // open | in_progress | resolved
+  assignedTo      String?  // role that handles this
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  tickets         Ticket[]
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  status      String   @default("open") // open | in_progress | resolved | closed
+  priority    String   @default("medium") // low | medium | high
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  reportId    String?
+  report      Report?  @relation(fields: [reportId], references: [id])
+  messages    Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+}
+
+model SafeCount {
+  id        String   @id @default("global")
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}

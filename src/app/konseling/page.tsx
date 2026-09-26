@@ -1,93 +1,127 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Video, MessageSquare, Clock } from "lucide-react";
+"use client";
+
+import Link from "next/link";
+import { Phone, MessageCircle, Mail, ExternalLink } from "lucide-react";
+
+const consultants = [
+  {
+    id: "pendidikan",
+    name: "Dinas Pendidikan",
+    emoji: "🎓",
+    role: "Layanan Pendidikan",
+    desc: "Membantu anak putus sekolah untuk kembali ke jalur pendidikan formal maupun non-formal.",
+    topics: ["Putus sekolah", "Kejar paket A/B/C", "Informasi sekolah", "Beasiswa pemerintah"],
+    contact: "0401-3121-123",
+    color: "border-blue-100 bg-blue-50/30",
+    badgeColor: "bg-blue-100 text-blue-700",
+  },
+  {
+    id: "perlindungan",
+    name: "Dinas Perlindungan Perempuan dan Anak",
+    emoji: "🛡️",
+    role: "Perlindungan Anak & Perempuan",
+    desc: "Menangani kasus kekerasan, perlindungan anak, dan pernikahan dini. Kami hadir untuk melindungimu.",
+    topics: ["Kekerasan fisik/verbal", "Perlindungan anak", "Pernikahan dini", "Trafficking"],
+    contact: "0401-3122-456",
+    color: "border-purple-100 bg-purple-50/30",
+    badgeColor: "bg-purple-100 text-purple-700",
+  },
+  {
+    id: "bk",
+    name: "Guru BK",
+    emoji: "📚",
+    role: "Bimbingan Konseling Sekolah",
+    desc: "Guru bimbingan dan konseling siap mendengar dan membantu masalah akademis dan sosial di sekolah.",
+    topics: ["Perundungan / bullying", "Masalah akademis", "Hubungan teman", "Motivasi belajar"],
+    contact: "Hubungi via tiket",
+    color: "border-green-100 bg-green-50/30",
+    badgeColor: "bg-green-100 text-green-700",
+  },
+  {
+    id: "teman",
+    name: "Teman Sebaya",
+    emoji: "💬",
+    role: "Famira & Firda — Konsultan Teman Sebaya",
+    desc: "Kadang lebih mudah bicara dengan orang yang seusia. Famira dan Firda siap mendengarmu tanpa menghakimi.",
+    topics: ["Masalah pribadi", "Curhat & cerita", "Pergaulan", "Perasaan & emosi"],
+    contact: "Hubungi via tiket",
+    color: "border-rose-100 bg-rose-50/30",
+    badgeColor: "bg-rose-100 text-rose-700",
+  },
+];
 
 export default function KonselingPage() {
-  const professionals = [
-    { 
-      name: "Ibu Bella Viona Hendrista, S.Pd", 
-      role: "Guru BK / Konselor Pendidikan",
-      specialty: "Masalah belajar, motivasi, putus sekolah",
-      status: "Tersedia",
-      image: "B"
-    },
-    { 
-      name: "Dr. Sarah", 
-      role: "Psikolog Klinis",
-      specialty: "Trauma, depresi, kecemasan, kekerasan",
-      status: "Penuh",
-      image: "S"
-    },
-    { 
-      name: "Bapak Budi", 
-      role: "Pendamping Sosial",
-      specialty: "Risiko pernikahan dini, mediasi keluarga",
-      status: "Tersedia",
-      image: "B"
-    }
-  ];
-
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">Teman Bicara (Konseling)</h1>
-        <p className="text-foreground/70 max-w-2xl mx-auto">
-          Kamu tidak harus menghadapi semuanya sendirian. Pilih psikolog, konselor, atau guru BK yang siap mendengarkan cerita dan masalahmu.
-        </p>
-      </div>
-
-      <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl mb-10 flex flex-col md:flex-row items-center gap-6">
-        <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
-          <MessageSquare className="w-8 h-8" />
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-amber-50">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
+            <MessageCircle className="h-4 w-4" />
+            Layanan Konseling PELITA
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">Siapa yang Bisa Membantumu?</h1>
+          <p className="text-foreground/60 max-w-xl mx-auto">Pilih layanan yang sesuai dengan situasimu. Semua informasi yang kamu bagikan bersifat rahasia.</p>
         </div>
-        <div>
-          <h3 className="font-bold text-lg text-amber-900 mb-1">Ruang Aman dan Rahasia</h3>
-          <p className="text-amber-800/80 text-sm">Semua percakapan dengan profesional di PELITA dijamin kerahasiaannya. Kami hanya akan mengambil tindakan lebih lanjut jika ada persetujuan darimu atau dalam keadaan darurat penyelamatan nyawa.</p>
-        </div>
-      </div>
 
-      <h2 className="text-2xl font-bold mb-6">Pilih Profesional</h2>
-      <div className="grid grid-cols-1 gap-6 mb-12">
-        {professionals.map((prof, idx) => (
-          <Card key={idx} className="overflow-hidden hover:border-primary/40 transition-colors">
-            <CardContent className="p-0 sm:flex">
-              <div className="sm:w-32 h-32 sm:h-auto bg-primary/10 flex items-center justify-center text-4xl font-bold text-primary">
-                {prof.image}
-              </div>
-              <div className="p-6 flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-bold text-xl">{prof.name}</h3>
-                    <p className="text-primary font-medium text-sm">{prof.role}</p>
+        {/* Consultant Cards */}
+        <div className="space-y-4 mb-10">
+          {consultants.map((c) => (
+            <div key={c.id} id={c.id} className={`bg-white rounded-2xl border-2 p-6 shadow-sm transition-all hover:shadow-md ${c.color}`}>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                <div className="text-4xl shrink-0">{c.emoji}</div>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <div>
+                      <h2 className="font-bold text-lg text-foreground">{c.name}</h2>
+                      <p className={`text-xs px-2 py-0.5 rounded-full font-medium inline-block mt-1 ${c.badgeColor}`}>{c.role}</p>
+                    </div>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${prof.status === 'Tersedia' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {prof.status}
-                  </span>
-                </div>
-                <p className="text-sm text-foreground/70 mb-4">Bidang: {prof.specialty}</p>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" className="gap-2" disabled={prof.status !== 'Tersedia'}>
-                    <MessageSquare className="w-4 h-4" /> Chat
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2" disabled={prof.status !== 'Tersedia'}>
-                    <Video className="w-4 h-4" /> Video Call
-                  </Button>
-                  <Button size="sm" className="gap-2 ml-auto bg-secondary text-secondary-foreground hover:bg-secondary/90" disabled={prof.status !== 'Tersedia'}>
-                    <Calendar className="w-4 h-4" /> Buat Janji
-                  </Button>
+                  <p className="text-sm text-foreground/60 mt-2 mb-3">{c.desc}</p>
+
+                  {/* Topics */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {c.topics.map((t) => (
+                      <span key={t} className="text-xs bg-white border border-border px-2 py-0.5 rounded-full text-foreground/60">{t}</span>
+                    ))}
+                  </div>
+
+                  {/* Contact */}
+                  <div className="flex flex-wrap gap-3">
+                    {c.contact.startsWith("0") ? (
+                      <a href={`tel:${c.contact.replace(/-/g, "")}`} className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
+                        <Phone className="h-4 w-4" />
+                        {c.contact}
+                      </a>
+                    ) : (
+                      <Link href="/lapor" className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
+                        <MessageCircle className="h-4 w-4" />
+                        Buat Laporan / Tiket
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      <div className="border-t border-border pt-8 text-center">
-        <h3 className="font-bold mb-2">Butuh teman bicara sekarang juga?</h3>
-        <p className="text-sm text-foreground/60 mb-4">Konselor siaga kami siap membalas pesanmu dalam 10 menit.</p>
-        <Button size="lg" className="rounded-full shadow-md gap-2">
-          <Clock className="w-5 h-5" /> Chat Konselor Siaga
-        </Button>
+        {/* Emergency Banner */}
+        <div className="bg-red-600 text-white rounded-2xl p-6 text-center shadow-lg">
+          <h2 className="font-bold text-xl mb-2">⚠️ Dalam Keadaan Darurat?</h2>
+          <p className="text-white/80 text-sm mb-4">Jika kamu atau seseorang dalam bahaya segera, hubungi nomor darurat nasional.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <a href="tel:110" className="bg-white text-red-600 font-bold px-6 py-2 rounded-full hover:bg-white/90 transition-all">
+              110 — Polisi
+            </a>
+            <a href="tel:119" className="bg-white text-red-600 font-bold px-6 py-2 rounded-full hover:bg-white/90 transition-all">
+              119 — Ambulans
+            </a>
+            <a href="tel:1500771" className="bg-white text-red-600 font-bold px-6 py-2 rounded-full hover:bg-white/90 transition-all">
+              1500-771 — Hotline Anak
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
