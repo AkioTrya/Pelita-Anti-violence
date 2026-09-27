@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<{ id: string; content: string; createdAt: string; user: { name: string; role: string } }[]>([]);
   const [chatInput, setChatInput] = useState("");
+  const [chatError, setChatError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const user = session?.user as { name?: string; role?: string };
@@ -86,13 +87,28 @@ export default function AdminDashboard() {
 
   const sendMessage = async () => {
     if (!chatInput.trim() || !selectedTicket) return;
-    await fetch(`/api/chat/${selectedTicket.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: chatInput }),
-    });
-    setChatInput("");
-    loadMessages(selectedTicket.id);
+
+    const trimmedMessage = chatInput.trim();
+    try {
+      const res = await fetch(`/api/chat/${selectedTicket.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: trimmedMessage }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setChatError(err?.error || "Gagal mengirim pesan.");
+        return;
+      }
+
+      const newMessage = await res.json();
+      setMessages((prev) => [...prev, newMessage]);
+      setChatInput("");
+      setChatError("");
+    } catch (error) {
+      setChatError(error instanceof Error ? error.message : "Gagal mengirim pesan.");
+    }
   };
 
   const updateTicketStatus = async (id: string, newStatus: string) => {
@@ -358,20 +374,28 @@ export default function AdminDashboard() {
                       ))}
                       {messages.length === 0 && <p className="text-center text-foreground/30 text-sm py-8">Belum ada pesan. Mulai percakapan!</p>}
                     </div>
-                    <div className="p-4 border-t border-rose-100 flex gap-2">
-                      <input
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                        placeholder="Ketik pesan..."
-                        className="flex-1 px-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      />
-                      <button
-                        onClick={sendMessage}
-                        className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all"
-                      >
-                        Kirim
-                      </button>
+                    <div className="p-4 border-t border-rose-100 flex flex-col gap-2">
+                      {chatError && <p className="text-xs text-red-500">{chatError}</p>}
+                      <div className="flex gap-2">
+                        <input
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              void sendMessage();
+                            }
+                          }}
+                          placeholder="Ketik pesan..."
+                          className="flex-1 px-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                        <button
+                          onClick={() => void sendMessage()}
+                          className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all"
+                        >
+                          Kirim
+                        </button>
+                      </div>
                     </div>
                   </>
                 ) : (
