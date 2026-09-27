@@ -3,6 +3,36 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+const defaultSeedUsers = [
+  {
+    name: "Administrator PELITA",
+    username: process.env.ADMIN_USERNAME || "admin",
+    password: process.env.ADMIN_PASSWORD || "Pelita@2026!",
+    role: "admin",
+  },
+  { name: "Famira", username: "famira", password: "Famira@2026!", role: "consultant" },
+  { name: "Firda", username: "firda", password: "Firda@2026!", role: "consultant" },
+  { name: "User Testing 1", username: "user1", password: "User1@2026!", role: "user" },
+  { name: "User Testing 2", username: "user2", password: "User2@2026!", role: "user" },
+  { name: "User Testing 3", username: "user3", password: "User3@2026!", role: "user" },
+] as const;
+
+async function ensureSeedUsers() {
+  for (const user of defaultSeedUsers) {
+    const existing = await prisma.user.findUnique({ where: { username: user.username } });
+    if (!existing) {
+      await prisma.user.create({
+        data: {
+          name: user.name,
+          username: user.username,
+          password: await bcrypt.hash(user.password, 12),
+          role: user.role,
+        },
+      });
+    }
+  }
+}
+
 export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,6 +43,8 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
+
+        await ensureSeedUsers();
 
         const user = await prisma.user.findUnique({
           where: { username: credentials.username },
