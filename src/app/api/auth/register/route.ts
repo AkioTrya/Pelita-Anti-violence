@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { normalizeUsername } from "@/lib/auth-seed";
 import { hasSqlInjection } from "@/lib/security";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const name = typeof body?.name === "string" ? body.name.trim() : "";
-    const username = typeof body?.username === "string" ? body.username.trim() : "";
+    const rawUsername = typeof body?.username === "string" ? body.username.trim() : "";
+    const username = normalizeUsername(rawUsername);
     const password = typeof body?.password === "string" ? body.password : "";
 
     if (!name || !username || !password) {
@@ -24,14 +26,17 @@ export async function POST(req: Request) {
       );
     }
 
-    if (hasSqlInjection(name) || hasSqlInjection(username) || hasSqlInjection(password)) {
+    if (hasSqlInjection(name) || hasSqlInjection(rawUsername) || hasSqlInjection(password)) {
       return NextResponse.json(
         { error: "Input tidak valid." },
         { status: 400 }
       );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { username } });
+    const existingUser = (await prisma.user.findMany()).find(
+      (candidate) => candidate.username.toLowerCase() === username
+    );
+
     if (existingUser) {
       return NextResponse.json(
         { error: "Username sudah digunakan. Silakan pilih username lain." },
