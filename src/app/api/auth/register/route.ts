@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { normalizeUsername } from "@/lib/auth-seed";
-import { hasSqlInjection } from "@/lib/security";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const name = typeof body?.name === "string" ? body.name.trim() : "";
-    const rawUsername = typeof body?.username === "string" ? body.username.trim() : "";
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Format permintaan tidak valid." }, { status: 400 });
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Format permintaan tidak valid." }, { status: 400 });
+    }
+
+    const input = body as Record<string, unknown>;
+    const name = typeof input.name === "string" ? input.name.trim() : "";
+    const rawUsername = typeof input.username === "string" ? input.username.trim() : "";
     const username = normalizeUsername(rawUsername);
-    const password = typeof body?.password === "string" ? body.password : "";
+    const password = typeof input.password === "string" ? input.password : "";
 
     if (!name || !username || !password) {
       return NextResponse.json(
@@ -19,23 +30,21 @@ export async function POST(req: Request) {
       );
     }
 
-    if (username.length < 3 || password.length < 6) {
+    if (
+      name.length > 100 ||
+      !/^[a-z0-9._-]{3,32}$/.test(username) ||
+      password.length < 8 ||
+      new TextEncoder().encode(password).length > 72
+    ) {
       return NextResponse.json(
-        { error: "Username minimal 3 karakter dan password minimal 6 karakter." },
+        { error: "Nama maksimal 100 karakter, username 3–32 karakter (huruf, angka, titik, garis bawah, atau tanda hubung), dan password 8–72 byte." },
         { status: 400 }
       );
     }
 
-    if (hasSqlInjection(name) || hasSqlInjection(rawUsername) || hasSqlInjection(password)) {
-      return NextResponse.json(
-        { error: "Input tidak valid." },
-        { status: 400 }
-      );
-    }
-
-    const existingUser = (await prisma.user.findMany()).find(
-      (candidate) => candidate.username.toLowerCase() === username
-    );
+    const existingUser = await prisma.user.findFirst({
+      where: { username: { equals: username, mode: "insensitive" } },
+    });
 
     if (existingUser) {
       return NextResponse.json(
@@ -46,14 +55,25 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        username,
-        password: hashedPassword,
-        role: "user",
-      },
-    });
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          name,
+          username,
+          password: hashedPassword,
+          role: "user",
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        return NextResponse.json(
+          { error: "Username sudah digunakan. Silakan pilih username lain." },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,

@@ -20,6 +20,32 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Authentication setup
+
+Set `DATABASE_URL` to your Neon pooled connection string (host includes `-pooler`
+and uses `sslmode=require`) and `DIRECT_URL` to the matching direct connection
+string for Prisma migrations. Set `NEXTAUTH_SECRET` to a unique, randomly
+generated value, and configure `ADMIN_USERNAME` and `ADMIN_PASSWORD` before
+creating the initial administrator. Set `NEXTAUTH_URL` to the deployed site URL
+where required by the hosting environment. Do not use example values from
+`.env.example` in a deployed environment.
+
+The Vercel build runs `prisma migrate deploy` before building the app, creating
+the PostgreSQL tables and indexes defined in `prisma/schema.prisma` on Neon.
+Ensure the database variables are set in Vercel for the deployment environment;
+adding or changing them requires a new deployment.
+If the Neon database already contains these tables but has no Prisma migration
+history, baseline it with `npx prisma migrate resolve --applied 20261007000000_initial_postgresql`
+only after confirming its schema matches this migration.
+
+To create the administrator, also set a separate random `SEED_SECRET`, then send
+one authenticated `POST` request to `/api/auth/seed` with
+`Authorization: Bearer <SEED_SECRET>`. The endpoint creates the configured admin
+only when that username does not already exist; it does not return credentials
+or overwrite existing accounts. Remove `SEED_SECRET` after bootstrapping.
+Normal login does not create or reset accounts. Public registration creates
+user-role accounts only.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

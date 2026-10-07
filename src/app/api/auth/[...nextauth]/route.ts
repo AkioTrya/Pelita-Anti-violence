@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { ensureSeedUsers, normalizeUsername } from "@/lib/auth-seed";
+import { normalizeUsername } from "@/lib/auth-seed";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -14,16 +14,13 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         const normalizedUsername = normalizeUsername(credentials?.username);
-        const password = String(credentials?.password ?? "").trim();
+        const password = String(credentials?.password ?? "");
 
         if (!normalizedUsername || !password) return null;
 
-        await ensureSeedUsers();
-
-        const users = await prisma.user.findMany();
-        const user = users.find(
-          (candidate) => candidate.username.toLowerCase() === normalizedUsername
-        );
+        const user = await prisma.user.findFirst({
+          where: { username: { equals: normalizedUsername, mode: "insensitive" } },
+        });
 
         if (!user) return null;
 
@@ -61,7 +58,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || "pelita-super-secret-key-2026-change-in-production",
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
