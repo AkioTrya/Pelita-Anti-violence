@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getAssignedChatChannels, isChatChannel } from "@/lib/chat-routing";
 
 // GET /api/tickets — list tickets (admin: all, user: own)
 export async function GET(req: NextRequest) {
@@ -12,19 +13,26 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = session.user as { id?: string; role?: string };
-  const isStaff = user.role === "admin" || user.role === "consultant";
+  const user = session.user as { id?: string; role?: string; email?: string | null };
+  const isAdmin = user.role === "admin";
+  const isStaff = isAdmin || user.role === "consultant";
   if (!isStaff && !user.id) {
     return NextResponse.json({ error: "Sesi pengguna tidak valid." }, { status: 401 });
   }
 
   const tickets =
-    isStaff
+    isAdmin
       ? await prisma.ticket.findMany({
           include: { user: { select: { name: true, username: true } }, messages: true },
           orderBy: { createdAt: "desc" },
         })
-      : await prisma.ticket.findMany({
+      : isStaff
+        ? await prisma.ticket.findMany({
+          where: { channel: { in: getAssignedChatChannels(user) } },
+          include: { user: { select: { name: true, username: true } }, messages: true },
+          orderBy: { createdAt: "desc" },
+        })
+        : await prisma.ticket.findMany({
           where: { userId: user.id ?? "" },
           include: { messages: true },
           orderBy: { createdAt: "desc" },
@@ -41,8 +49,11 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = session.user as { id?: string };
+  const user = session.user as { id?: string; role?: string };
   if (!user.id) return NextResponse.json({ error: "Sesi pengguna tidak valid." }, { status: 401 });
+  if (user.role !== "user") {
+    return NextResponse.json({ error: "Hanya pengguna yang dapat memulai chat konseling." }, { status: 403 });
+  }
 
   let body: unknown;
   try {
@@ -58,10 +69,11 @@ export async function POST(req: NextRequest) {
   const title = typeof input.title === "string" ? input.title.trim() : "";
   const description = typeof input.description === "string" ? input.description.trim() : "";
   const reportId = typeof input.reportId === "string" ? input.reportId : undefined;
+  const channel = input.channel;
 
-  if (!title || !description || title.length > 120 || description.length > 2000)
+  if (!title || !description || title.length > 120 || description.length > 2000 || !isChatChannel(channel))
     return NextResponse.json(
-      { error: "Judul dan deskripsi wajib diisi (maksimal 120 dan 2000 karakter)." },
+      { error: "Pilih tujuan chat Guru BK atau Teman Sebaya, serta isi judul dan deskripsi yang valid." },
       { status: 400 }
     );
 
@@ -69,6 +81,7 @@ export async function POST(req: NextRequest) {
     data: {
       title,
       description,
+      channel,
       userId: user.id,
       reportId: reportId || undefined,
     },

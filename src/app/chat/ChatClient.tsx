@@ -9,6 +9,7 @@ type Ticket = {
   id: string;
   title: string;
   description: string;
+  channel: "bk" | "peer" | "general";
   status: string;
   createdAt: string;
 };
@@ -22,7 +23,7 @@ type ChatMessage = {
 
 const recipients = {
   bk: { title: "Guru BK", summary: "Konsultasi masalah sekolah, bullying, dan pertemanan." },
-  teman: { title: "Teman Sebaya", summary: "Cerita kepada Famira atau Firda dengan nyaman." },
+  teman: { title: "Teman Sebaya", summary: "Cerita kepada Dipa atau Firda dengan nyaman." },
 } as const;
 
 export default function ChatClient({
@@ -118,6 +119,7 @@ export default function ChatClient({
         body: JSON.stringify({
           title: `Konsultasi — ${recipients[target].title}`,
           description: `Permintaan konsultasi melalui chat ${recipients[target].title}.`,
+          channel: target === "teman" ? "peer" : "bk",
         }),
       });
       const data = await response.json();

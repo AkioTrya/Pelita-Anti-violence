@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard, FileText, MessageSquare, Users, LogOut,
+  LayoutDashboard, FileText, MessageSquare, LogOut,
   ChevronRight, CheckCircle, Clock, AlertCircle, X
 } from "lucide-react";
 
@@ -12,6 +12,7 @@ type Ticket = {
   id: string;
   title: string;
   description: string;
+  channel: "bk" | "peer" | "general";
   status: string;
   priority: string;
   createdAt: string;
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"overview" | "tickets" | "reports" | "chat">("overview");
+  const [activeChatChannel, setActiveChatChannel] = useState<"bk" | "peer">("bk");
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -133,6 +135,7 @@ export default function AdminDashboard() {
   const openTickets = tickets.filter((t) => t.status === "open").length;
   const resolvedTickets = tickets.filter((t) => t.status === "resolved").length;
   const inProgressTickets = tickets.filter((t) => t.status === "in_progress").length;
+  const channelTickets = tickets.filter((ticket) => ticket.channel === activeChatChannel);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-amber-50 flex">
@@ -236,7 +239,7 @@ export default function AdminDashboard() {
               <h3 className="font-semibold text-foreground mb-4">Tiket Terbaru</h3>
               <div className="space-y-3">
                 {tickets.slice(0, 5).map((t) => (
-                  <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-rose-50 transition-all cursor-pointer" onClick={() => { setSelectedTicket(t); setActiveTab("chat"); loadMessages(t.id); }}>
+                  <div key={t.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-rose-50 transition-all cursor-pointer" onClick={() => { if (t.channel === "bk" || t.channel === "peer") setActiveChatChannel(t.channel); setSelectedTicket(t); setActiveTab("chat"); loadMessages(t.id); }}>
                     <div>
                       <p className="text-sm font-medium text-foreground">{t.title}</p>
                       <p className="text-xs text-foreground/50">{t.user?.name} • {new Date(t.createdAt).toLocaleDateString("id-ID")}</p>
@@ -283,7 +286,7 @@ export default function AdminDashboard() {
                         </button>
                       ))}
                       <button
-                        onClick={() => { setSelectedTicket(t); setActiveTab("chat"); loadMessages(t.id); }}
+                        onClick={() => { if (t.channel === "bk" || t.channel === "peer") setActiveChatChannel(t.channel); setSelectedTicket(t); setActiveTab("chat"); loadMessages(t.id); }}
                         className="text-xs px-3 py-1.5 rounded-lg font-medium bg-secondary/20 text-secondary-foreground hover:bg-secondary/40 transition-all flex items-center gap-1"
                       >
                         <MessageSquare className="h-3 w-3" /> Chat
@@ -325,13 +328,43 @@ export default function AdminDashboard() {
         {/* Chat Tab */}
         {activeTab === "chat" && (
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-6">Chat Room</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Chat Konseling</h2>
+            <div className="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Pilih antrean chat">
+              {([
+                { id: "bk", label: "Chat Guru BK" },
+                { id: "peer", label: "Chat Teman Sebaya (Dipa & Firda)" },
+              ] as const).map((channel) => {
+                const count = tickets.filter((ticket) => ticket.channel === channel.id).length;
+                return (
+                  <button
+                    key={channel.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeChatChannel === channel.id}
+                    onClick={() => {
+                      setActiveChatChannel(channel.id);
+                      setSelectedTicket(null);
+                      setMessages([]);
+                    }}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                      activeChatChannel === channel.id
+                        ? "bg-primary text-white"
+                        : "bg-white text-foreground/70 border border-border hover:border-primary/40"
+                    }`}
+                  >
+                    {channel.label} <span className="ml-1 opacity-75">({count})</span>
+                  </button>
+                );
+              })}
+            </div>
             <div className="flex flex-col md:flex-row gap-4 h-[calc(100vh-16rem)]">
               {/* Ticket list */}
               <div className="md:w-72 bg-white rounded-2xl shadow-sm border border-rose-100 overflow-auto">
-                <div className="p-4 border-b border-rose-100 font-semibold text-sm text-foreground">Pilih Tiket</div>
+                <div className="p-4 border-b border-rose-100 font-semibold text-sm text-foreground">
+                  {activeChatChannel === "bk" ? "Antrean Guru BK" : "Antrean Dipa & Firda"}
+                </div>
                 <div className="divide-y divide-rose-50">
-                  {tickets.map((t) => (
+                  {channelTickets.map((t) => (
                     <button
                       key={t.id}
                       onClick={() => { setSelectedTicket(t); loadMessages(t.id); }}
@@ -342,6 +375,9 @@ export default function AdminDashboard() {
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium mt-1 inline-block ${statusColor[t.status]}`}>{statusLabel[t.status]}</span>
                     </button>
                   ))}
+                  {channelTickets.length === 0 && (
+                    <p className="p-4 text-xs text-foreground/50">Belum ada chat di antrean ini.</p>
+                  )}
                 </div>
               </div>
 

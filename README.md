@@ -46,9 +46,14 @@ It will not promote a regular account to administrator, and it never returns
 credentials. Remove `SEED_SECRET` after bootstrapping. Normal login does not
 create or reset accounts. Public registration creates user-role accounts only.
 
-Authenticated users can start a Guru BK or Teman Sebaya chat from Konseling.
-Chats appear in the admin dashboard's Chat tab for the PELITA team to answer;
-message access is restricted to the ticket owner and admin/consultant accounts.
+Authenticated users can start a separate Guru BK or Teman Sebaya chat from
+Konseling. Set `BK_CHAT_USERNAME` to the Guru BK consultant's login username and
+`PEER_CHAT_USERNAMES` to Dipa's and Firda's login usernames, comma-separated.
+Those accounts must already exist with the `consultant` role. Set these values
+in Vercel and redeploy. In the admin dashboard, the two channels have separate
+inboxes; admins can see both, while each consultant can only see and reply to
+their assigned channel. Message access is restricted to the ticket owner and
+authorized staff.
 
 ## Learn More
 

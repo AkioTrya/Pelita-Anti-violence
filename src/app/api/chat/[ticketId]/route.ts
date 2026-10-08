@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { canAccessChatChannel } from "@/lib/chat-routing";
 
 // GET /api/chat/[ticketId] — get messages for a ticket
 export async function GET(
@@ -16,10 +17,16 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { ticketId } = await params;
-  const user = session.user as { id?: string; role?: string };
-  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { userId: true } });
+  const user = session.user as { id?: string; role?: string; email?: string | null };
+  const ticket = await prisma.ticket.findUnique({
+    where: { id: ticketId },
+    select: { userId: true, channel: true },
+  });
   if (!ticket) return NextResponse.json({ error: "Tiket tidak ditemukan." }, { status: 404 });
-  if (user.role !== "admin" && user.role !== "consultant" && ticket.userId !== user.id) {
+  const canAccess =
+    canAccessChatChannel(user, ticket.channel) ||
+    (user.role === "user" && ticket.userId === user.id);
+  if (!canAccess) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -45,12 +52,18 @@ export async function POST(
 
   const { ticketId } = await params;
 
-  const user = session.user as { id?: string; role?: string };
+  const user = session.user as { id?: string; role?: string; email?: string | null };
   if (!user.id) return NextResponse.json({ error: "Sesi pengguna tidak valid." }, { status: 401 });
 
-  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { userId: true } });
+  const ticket = await prisma.ticket.findUnique({
+    where: { id: ticketId },
+    select: { userId: true, channel: true },
+  });
   if (!ticket) return NextResponse.json({ error: "Tiket tidak ditemukan." }, { status: 404 });
-  if (user.role !== "admin" && user.role !== "consultant" && ticket.userId !== user.id) {
+  const canAccess =
+    canAccessChatChannel(user, ticket.channel) ||
+    (user.role === "user" && ticket.userId === user.id);
+  if (!canAccess) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

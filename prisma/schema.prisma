@@ -45,6 +45,7 @@ model Ticket {
   id          String   @id @default(cuid())
   title       String
   description String
+  channel     String   @default("general")
   status      String   @default("open") // open | in_progress | resolved | closed
   priority    String   @default("medium") // low | medium | high
   createdAt   DateTime @default(now())
