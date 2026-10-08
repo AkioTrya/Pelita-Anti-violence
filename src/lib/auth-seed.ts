@@ -22,27 +22,40 @@ export function resolveConfiguredAdmin() {
   } as const;
 }
 
-export async function ensureConfiguredAdmin(): Promise<boolean> {
+export async function ensureConfiguredAdmin(): Promise<"created" | "updated" | "unchanged"> {
   const admin = resolveConfiguredAdmin();
   const existing = await prisma.user.findFirst({
     where: { username: { equals: admin.username, mode: "insensitive" } },
   });
 
-  if (existing) return false;
+  if (existing && existing.role !== "admin") {
+    throw new Error("Configured admin username already belongs to a non-admin account.");
+  }
+
+  const passwordMatches = existing ? await bcrypt.compare(admin.password, existing.password) : false;
+  if (existing && existing.name === admin.name && passwordMatches) return "unchanged";
+
+  const password = passwordMatches && existing
+    ? existing.password
+    : await bcrypt.hash(admin.password, 12);
+  const data = {
+    name: admin.name,
+    username: admin.username,
+    password,
+    role: admin.role,
+  };
+
+  if (existing) {
+    await prisma.user.update({ where: { id: existing.id }, data });
+    return "updated";
+  }
 
   try {
-    await prisma.user.create({
-      data: {
-        name: admin.name,
-        username: admin.username,
-        password: await bcrypt.hash(admin.password, 12),
-        role: admin.role,
-      },
-    });
-    return true;
+    await prisma.user.create({ data });
+    return "created";
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return false;
+      return "unchanged";
     }
     throw error;
   }

@@ -5,7 +5,13 @@ import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 
-export default function LoginForm({ initialMode }: { initialMode: "login" | "register" }) {
+export default function LoginForm({
+  initialMode,
+  callbackUrl,
+}: {
+  initialMode: "login" | "register";
+  callbackUrl: string | null;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [name, setName] = useState("");
@@ -34,7 +40,7 @@ export default function LoginForm({ initialMode }: { initialMode: "login" | "reg
 
       const session = await getSession();
       const role = (session?.user as { role?: string } | undefined)?.role;
-      router.push(role === "user" ? "/profil" : "/admin");
+      router.push(role === "user" ? callbackUrl ?? "/profil" : "/admin");
     } catch {
       setError("Login gagal. Periksa koneksi internet dan coba lagi.");
     } finally {
@@ -72,7 +78,7 @@ export default function LoginForm({ initialMode }: { initialMode: "login" | "reg
         return;
       }
 
-      router.push("/profil");
+      router.push(callbackUrl ?? "/profil");
     } catch {
       setError("Registrasi gagal. Periksa koneksi internet dan coba lagi.");
     } finally {
@@ -167,7 +173,7 @@ export default function LoginForm({ initialMode }: { initialMode: "login" | "reg
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Buat password minimal 6 karakter"
+                    placeholder="Buat password minimal 8 karakter"
                     required
                     className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm transition-all"
                   />

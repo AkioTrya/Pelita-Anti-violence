@@ -16,8 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PELITA - Perlindungan dan Edukasi Layanan Inklusif",
-  description: "Aplikasi bantuan untuk anak-anak berisiko putus sekolah, pernikahan dini, dan kekerasan.",
+  title: "PELITA PALI (Peduli dan Lindungi Kita)",
+  description:
+    "Pendampingan untuk mencegah dan menangani bullying, putus sekolah, pernikahan dini, dan KDRT di Kabupaten PALI.",
 };
 
 export default function RootLayout({

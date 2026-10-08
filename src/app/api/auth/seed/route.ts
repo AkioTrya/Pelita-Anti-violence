@@ -21,11 +21,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const created = await ensureConfiguredAdmin();
+    const result = await ensureConfiguredAdmin();
 
     return NextResponse.json({
       success: true,
-      message: created ? "Akun administrator berhasil dibuat." : "Akun administrator sudah tersedia.",
+      message:
+        result === "created"
+          ? "Akun administrator berhasil dibuat."
+          : result === "updated"
+            ? "Kredensial administrator berhasil diperbarui."
+            : "Akun administrator sudah sesuai konfigurasi.",
     });
   } catch (error) {
     console.error("Admin bootstrap error:", error);

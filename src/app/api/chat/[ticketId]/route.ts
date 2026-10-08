@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { rateLimit, hasSqlInjection, sanitizeInput } from "@/lib/security";
+import { rateLimit } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -16,6 +16,12 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { ticketId } = await params;
+  const user = session.user as { id?: string; role?: string };
+  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { userId: true } });
+  if (!ticket) return NextResponse.json({ error: "Tiket tidak ditemukan." }, { status: 404 });
+  if (user.role !== "admin" && user.role !== "consultant" && ticket.userId !== user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const messages = await prisma.message.findMany({
     where: { ticketId },
@@ -39,20 +45,34 @@ export async function POST(
 
   const { ticketId } = await params;
 
-  const user = session.user as { id?: string };
-  const body = await req.json();
-  const { content } = body;
+  const user = session.user as { id?: string; role?: string };
+  if (!user.id) return NextResponse.json({ error: "Sesi pengguna tidak valid." }, { status: 401 });
 
-  if (!content || content.trim().length === 0)
+  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { userId: true } });
+  if (!ticket) return NextResponse.json({ error: "Tiket tidak ditemukan." }, { status: 404 });
+  if (user.role !== "admin" && user.role !== "consultant" && ticket.userId !== user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Format permintaan tidak valid." }, { status: 400 });
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Format permintaan tidak valid." }, { status: 400 });
+  }
+
+  const content = (body as Record<string, unknown>).content;
+
+  if (typeof content !== "string" || !content.trim() || content.length > 2000)
     return NextResponse.json({ error: "Pesan tidak boleh kosong." }, { status: 400 });
-
-  if (hasSqlInjection(content))
-    return NextResponse.json({ error: "Input tidak valid." }, { status: 400 });
 
   const message = await prisma.message.create({
     data: {
-      content: sanitizeInput(content.trim()),
-      userId: user.id!,
+      content: content.trim(),
+      userId: user.id,
       ticketId,
     },
     include: { user: { select: { name: true, role: true } } },

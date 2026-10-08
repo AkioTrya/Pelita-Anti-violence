@@ -8,7 +8,7 @@ const kategoriToRole: Record<string, string> = {
   pernikahan_dini: "Dinas Perlindungan Perempuan dan Anak",
   perlindungan_anak: "Dinas Perlindungan Perempuan dan Anak",
   bullying: "Guru BK",
-  putus_sekolah: "Dinas Pendidikan",
+  putus_sekolah: "Tim Pendamping PELITA",
   masalah_pribadi: "Teman Sebaya",
 };
 

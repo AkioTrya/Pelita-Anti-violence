@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, BookOpen, ShieldAlert, HeartHandshake, LogOut, Settings, History } from "lucide-react";
+import { User, ShieldAlert, HeartHandshake, LogOut, Settings, History, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilPage() {
@@ -62,19 +62,19 @@ export default function ProfilPage() {
               </Card>
             </Link>
 
-            <Link href="/pendidikan" className="group">
-              <Card className="h-full hover:border-blue-300 hover:shadow-md transition-all">
+            <Link href="/chat" className="group">
+              <Card className="h-full hover:border-purple-300 hover:shadow-md transition-all">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-blue-500" /> Beasiswa & PKBM
+                    <MessageCircle className="w-5 h-5 text-purple-500" /> Chat Saya
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-foreground/70">2 Beasiswa disimpan.</p>
+                  <p className="text-sm text-foreground/70">Lanjutkan percakapan dengan pendamping PELITA.</p>
                 </CardContent>
               </Card>
             </Link>
-            
+
             <Card className="h-full opacity-60">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">

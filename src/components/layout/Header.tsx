@@ -10,8 +10,8 @@ export function Header() {
 
   const navLinks = [
     { href: "/", label: "Beranda" },
-    { href: "/pendidikan", label: "Pendidikan" },
     { href: "/konseling", label: "Konseling" },
+    { href: "/chat", label: "Chat" },
     { href: "/lapor", label: "Lapor" },
     { href: "/edukasi", label: "Edukasi" },
   ];
@@ -25,8 +25,8 @@ export function Header() {
             <span className="text-xl font-bold">🕯️</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-primary text-xl leading-none">PELITA</span>
-            <span className="text-[10px] text-foreground/70 hidden sm:inline-block mt-1">Perlindungan dan Edukasi Layanan Inklusif</span>
+            <span className="font-bold text-primary text-xl leading-none">PELITA PALI</span>
+            <span className="text-[10px] text-foreground/70 hidden sm:inline-block mt-1">Peduli dan Lindungi Kita</span>
           </div>
         </Link>
         
@@ -108,4 +108,3 @@ export function Header() {
     </header>
   );
 }
-

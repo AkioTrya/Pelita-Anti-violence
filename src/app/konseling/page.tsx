@@ -1,20 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, MessageCircle, Mail, ExternalLink } from "lucide-react";
+import { Phone, MessageCircle } from "lucide-react";
 
 const consultants = [
-  {
-    id: "pendidikan",
-    name: "Dinas Pendidikan",
-    emoji: "🎓",
-    role: "Layanan Pendidikan",
-    desc: "Membantu anak putus sekolah untuk kembali ke jalur pendidikan formal maupun non-formal.",
-    topics: ["Putus sekolah", "Kejar paket A/B/C", "Informasi sekolah", "Beasiswa pemerintah"],
-    contact: "0401-3121-123",
-    color: "border-blue-100 bg-blue-50/30",
-    badgeColor: "bg-blue-100 text-blue-700",
-  },
   {
     id: "perlindungan",
     name: "Dinas Perlindungan Perempuan dan Anak",
@@ -33,7 +22,7 @@ const consultants = [
     role: "Bimbingan Konseling Sekolah",
     desc: "Guru bimbingan dan konseling siap mendengar dan membantu masalah akademis dan sosial di sekolah.",
     topics: ["Perundungan / bullying", "Masalah akademis", "Hubungan teman", "Motivasi belajar"],
-    contact: "Hubungi via tiket",
+    contact: "chat",
     color: "border-green-100 bg-green-50/30",
     badgeColor: "bg-green-100 text-green-700",
   },
@@ -44,7 +33,7 @@ const consultants = [
     role: "Famira & Firda — Konsultan Teman Sebaya",
     desc: "Kadang lebih mudah bicara dengan orang yang seusia. Famira dan Firda siap mendengarmu tanpa menghakimi.",
     topics: ["Masalah pribadi", "Curhat & cerita", "Pergaulan", "Perasaan & emosi"],
-    contact: "Hubungi via tiket",
+    contact: "chat",
     color: "border-rose-100 bg-rose-50/30",
     badgeColor: "bg-rose-100 text-rose-700",
   },
@@ -88,16 +77,16 @@ export default function KonselingPage() {
 
                   {/* Contact */}
                   <div className="flex flex-wrap gap-3">
-                    {c.contact.startsWith("0") ? (
+                    {c.contact === "chat" ? (
+                      <Link href={`/chat?to=${c.id}`} className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
+                        <MessageCircle className="h-4 w-4" />
+                        Mulai Chat
+                      </Link>
+                    ) : (
                       <a href={`tel:${c.contact.replace(/-/g, "")}`} className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
                         <Phone className="h-4 w-4" />
                         {c.contact}
                       </a>
-                    ) : (
-                      <Link href="/lapor" className="flex items-center gap-2 text-sm font-medium text-primary bg-primary/10 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
-                        <MessageCircle className="h-4 w-4" />
-                        Buat Laporan / Tiket
-                      </Link>
                     )}
                   </div>
                 </div>

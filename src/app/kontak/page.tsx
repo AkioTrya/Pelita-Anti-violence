@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, ArrowLeft, Shield, HeartPulse, GraduationCap, HeartHandshake } from "lucide-react";
+import { Phone, ArrowLeft, Shield, HeartPulse, HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -32,13 +32,6 @@ function KontakContent() {
       icon: <Shield className="w-6 h-6 text-blue-500" />,
       category: "kekerasan darurat",
       desc: "Untuk melaporkan tindakan kejahatan."
-    },
-    { 
-      name: "Dinas Pendidikan Daerah", 
-      number: "0812-XXXX-XXXX", 
-      icon: <GraduationCap className="w-6 h-6 text-indigo-500" />,
-      category: "sekolah beasiswa pendidikan",
-      desc: "Layanan kembali sekolah dan PKBM."
     },
     { 
       name: "Konselor PELITA (Ibu Bella)", 

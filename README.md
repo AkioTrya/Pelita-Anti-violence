@@ -38,13 +38,17 @@ If the Neon database already contains these tables but has no Prisma migration
 history, baseline it with `npx prisma migrate resolve --applied 20261007000000_initial_postgresql`
 only after confirming its schema matches this migration.
 
-To create the administrator, also set a separate random `SEED_SECRET`, then send
-one authenticated `POST` request to `/api/auth/seed` with
-`Authorization: Bearer <SEED_SECRET>`. The endpoint creates the configured admin
-only when that username does not already exist; it does not return credentials
-or overwrite existing accounts. Remove `SEED_SECRET` after bootstrapping.
-Normal login does not create or reset accounts. Public registration creates
-user-role accounts only.
+To create or synchronize the configured administrator, set a separate random
+`SEED_SECRET`, then send an authenticated `POST` request to `/api/auth/seed` with
+`Authorization: Bearer <SEED_SECRET>`. It creates the account if missing, or
+updates the password/name when that username already belongs to an administrator.
+It will not promote a regular account to administrator, and it never returns
+credentials. Remove `SEED_SECRET` after bootstrapping. Normal login does not
+create or reset accounts. Public registration creates user-role accounts only.
+
+Authenticated users can start a Guru BK or Teman Sebaya chat from Konseling.
+Chats appear in the admin dashboard's Chat tab for the PELITA team to answer;
+message access is restricted to the ticket owner and admin/consultant accounts.
 
 ## Learn More
 

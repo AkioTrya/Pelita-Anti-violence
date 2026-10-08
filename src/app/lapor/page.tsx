@@ -9,7 +9,7 @@ const KATEGORI_OPTIONS = [
   { value: "perlindungan_anak", label: "🛡️ Perlindungan Anak", assignedTo: "Dinas Perlindungan Perempuan dan Anak" },
   { value: "pernikahan_dini", label: "💔 Pernikahan Dini", assignedTo: "Dinas Perlindungan Perempuan dan Anak" },
   { value: "bullying", label: "⚠️ Perundungan / Bullying", assignedTo: "Guru BK" },
-  { value: "putus_sekolah", label: "📚 Putus Sekolah", assignedTo: "Dinas Pendidikan" },
+  { value: "putus_sekolah", label: "📚 Putus Sekolah", assignedTo: "Tim Pendamping PELITA" },
   { value: "masalah_pribadi", label: "💬 Masalah Pribadi", assignedTo: "Teman Sebaya" },
 ];
 

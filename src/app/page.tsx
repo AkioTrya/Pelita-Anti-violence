@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, MessageCircle, BookOpen, Heart, ChevronRight } from "lucide-react";
+import { Shield, MessageCircle, Heart, ChevronRight } from "lucide-react";
 
 export default function Home() {
   const [safeCount, setSafeCount] = useState<number | null>(null);
@@ -28,8 +28,8 @@ export default function Home() {
     {
       href: "/konseling",
       icon: <MessageCircle className="h-8 w-8 text-purple-500" />,
-      title: "Konseling",
-      desc: "Bicara dengan konsultan",
+      title: "Chat Konseling",
+      desc: "Bicara dengan Guru BK atau teman sebaya",
       color: "border-purple-100 hover:border-purple-300 bg-purple-50/50",
     },
     {
@@ -39,17 +39,9 @@ export default function Home() {
       desc: "Sampaikan laporanmu",
       color: "border-red-100 hover:border-red-300 bg-red-50/50",
     },
-    {
-      href: "/edukasi",
-      icon: <BookOpen className="h-8 w-8 text-amber-500" />,
-      title: "Edukasi",
-      desc: "Pelajari hak-hakmu",
-      color: "border-amber-100 hover:border-amber-300 bg-amber-50/50",
-    },
   ];
 
   const contacts = [
-    { label: "Dinas Pendidikan", href: "/konseling#pendidikan", icon: "🎓" },
     { label: "Dinas Perlindungan Perempuan dan Anak", href: "/konseling#perlindungan", icon: "🛡️" },
     { label: "Guru BK", href: "/konseling#bk", icon: "📚" },
     { label: "Teman Sebaya", href: "/konseling#teman", icon: "💬" },
@@ -61,19 +53,18 @@ export default function Home() {
         {/* Hero */}
         <section className="text-center py-10 md:py-16">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6 animate-pulse">
-            <span>🕯️</span> Perlindungan dan Edukasi Layanan Inklusif
+            <span>🕯️</span> Peduli dan Lindungi Kita
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4 leading-tight">
-            Halo, kamu ingin<br />
-            <span className="text-secondary">mencari bantuan</span> apa hari ini?
+            PELITA PALI
           </h1>
           <p className="text-foreground/60 max-w-lg mx-auto text-sm md:text-base mb-8">
-            PELITA hadir untuk mendampingimu menemukan jalur yang tepat — aman, mudah, dan terhubung.
+            Pendampingan untuk mencegah dan menangani bullying, putus sekolah, pernikahan dini, dan KDRT di Kabupaten PALI.
           </p>
         </section>
 
         {/* Main Action Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
           {actions.map((action) => (
             <Link key={action.href} href={action.href} className="group block">
               <div className={`h-full border-2 rounded-2xl p-6 text-center transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg ${action.color}`}>
