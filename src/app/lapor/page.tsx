@@ -18,7 +18,7 @@ export default function LaporPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [trackingCode, setTrackingCode] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     nama: "",
@@ -54,17 +54,22 @@ export default function LaporPage() {
         return;
       }
 
-      setSuccess(true);
+      if (typeof data.trackingCode !== "string") {
+        setError("Laporan terkirim, tetapi nomor pelacakan tidak diterima. Hubungi tim PELITA untuk bantuan.");
+        setLoading(false);
+        return;
+      }
+      setTrackingCode(data.trackingCode);
     } catch {
       setError("Tidak dapat terhubung ke server. Periksa koneksi internetmu.");
     }
     setLoading(false);
   };
 
-  if (success) {
+  if (trackingCode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-amber-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+      <div className="flex min-h-[70vh] items-center justify-center bg-gradient-to-br from-rose-50 to-amber-50 px-4 py-8">
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl sm:p-8">
           <div className="text-6xl mb-4">🕯️</div>
           <h2 className="text-2xl font-bold text-primary mb-3">Laporanmu Sudah Terkirim</h2>
           <p className="text-foreground/60 mb-6">
@@ -72,11 +77,21 @@ export default function LaporPage() {
             <span className="font-semibold text-primary">{selectedKategori?.assignedTo}</span>.
           </p>
           <p className="text-sm text-foreground/40 mb-6">Kamu tidak sendirian. PELITA selalu ada untukmu. 💙</p>
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
+            <p className="mb-2 text-sm text-foreground/70">Simpan nomor laporan ini untuk mengecek perkembangannya:</p>
+            <p className="break-all font-mono text-sm font-bold text-primary sm:text-base">{trackingCode}</p>
+          </div>
           <button
-            onClick={() => router.push("/")}
-            className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all"
+            onClick={() => router.push(`/tracking?code=${encodeURIComponent(trackingCode)}`)}
+            className="mb-3 w-full rounded-xl bg-primary py-3 font-semibold text-white transition-all hover:bg-primary/90"
           >
-            Kembali ke Beranda
+            Lacak Laporan
+          </button>
+          <button
+            onClick={() => router.push("/profil")}
+            className="w-full rounded-xl border border-border py-3 font-semibold transition-all hover:bg-rose-50"
+          >
+            Buka Riwayat Saya
           </button>
         </div>
       </div>
@@ -84,7 +99,7 @@ export default function LaporPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-amber-50 px-4 py-8">
+    <div className="min-h-[70vh] bg-gradient-to-br from-rose-50 to-amber-50 px-3 py-6 sm:px-4 sm:py-8">
       <div className="container mx-auto max-w-xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -103,7 +118,7 @@ export default function LaporPage() {
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-6 md:p-8">
+        <div className="rounded-2xl border border-rose-100 bg-white p-4 shadow-sm sm:p-6 md:p-8">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
@@ -127,7 +142,7 @@ export default function LaporPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-foreground/70 mb-1">Kelas <span className="text-foreground/40 text-xs">(opsional)</span></label>
                   <input
@@ -214,10 +229,10 @@ export default function LaporPage() {
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row">
                 <button
                   onClick={() => { setError(""); setStep(1); }}
-                  className="flex-1 border border-border text-foreground py-3 rounded-xl font-medium hover:bg-rose-50 transition-all"
+                  className="min-h-11 flex-1 border border-border text-foreground py-3 rounded-xl font-medium hover:bg-rose-50 transition-all"
                 >
                   Kembali
                 </button>
@@ -230,7 +245,7 @@ export default function LaporPage() {
                     setError("");
                     setStep(3);
                   }}
-                  className="flex-1 bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                  className="min-h-11 flex-1 bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
                 >
                   Lanjut <ChevronRight className="h-4 w-4" />
                 </button>
@@ -265,17 +280,17 @@ export default function LaporPage() {
                 <p className="font-medium text-primary">Akan ditangani oleh: {selectedKategori?.assignedTo}</p>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row">
                 <button
                   onClick={() => { setError(""); setStep(2); }}
-                  className="flex-1 border border-border text-foreground py-3 rounded-xl font-medium hover:bg-rose-50 transition-all"
+                  className="min-h-11 flex-1 border border-border text-foreground py-3 rounded-xl font-medium hover:bg-rose-50 transition-all"
                 >
                   Kembali
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex-1 bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="min-h-11 flex-1 bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Mengirim..." : "Kirim Laporan"}
                 </button>

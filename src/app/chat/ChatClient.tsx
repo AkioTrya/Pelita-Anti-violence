@@ -64,7 +64,10 @@ export default function ChatClient({
         if (!cancelled) {
           const userTickets = Array.isArray(data) ? (data as Ticket[]) : [];
           setTickets(userTickets);
-          setSelectedTicket(userTickets[0] ?? null);
+          const requestedTicketId = new URLSearchParams(window.location.search).get("ticket");
+          setSelectedTicket(
+            userTickets.find((ticket) => ticket.id === requestedTicketId) ?? userTickets[0] ?? null
+          );
         }
       })
       .catch((loadError: unknown) => {
@@ -201,7 +204,7 @@ export default function ChatClient({
           </div>
         )}
 
-        <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="space-y-4">
             <div className="rounded-2xl border border-rose-100 bg-white p-4 shadow-sm">
               <h2 className="font-semibold text-foreground mb-3">Mulai konsultasi</h2>
@@ -224,7 +227,7 @@ export default function ChatClient({
               {tickets.length === 0 ? (
                 <p className="text-sm text-foreground/50">Belum ada percakapan.</p>
               ) : (
-                <div className="space-y-1">
+                <div className="max-h-64 space-y-1 overflow-y-auto lg:max-h-none">
                   {tickets.map((ticket) => (
                     <button
                       key={ticket.id}
@@ -245,11 +248,11 @@ export default function ChatClient({
             </div>
           </aside>
 
-          <section className="min-h-[480px] rounded-2xl border border-rose-100 bg-white shadow-sm flex flex-col">
+          <section className="flex min-h-[55vh] min-w-0 flex-col rounded-2xl border border-rose-100 bg-white shadow-sm sm:min-h-[480px]">
             {selectedTicket ? (
               <>
                 <div className="border-b border-rose-100 p-4">
-                  <h2 className="font-semibold text-foreground">{selectedTicket.title}</h2>
+                  <h2 className="break-words font-semibold text-foreground">{selectedTicket.title}</h2>
                   <p className="text-xs text-foreground/50 mt-1">{selectedTicket.description}</p>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -259,7 +262,7 @@ export default function ChatClient({
                     </p>
                   ) : (
                     visibleMessages.map((chatMessage) => (
-                      <article key={chatMessage.id} className="max-w-[85%] rounded-xl bg-rose-50 p-3">
+                      <article key={chatMessage.id} className="max-w-[90%] break-words rounded-xl bg-rose-50 p-3 [overflow-wrap:anywhere]">
                         <p className="text-xs font-semibold text-primary">{chatMessage.user.name}</p>
                         <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{chatMessage.content}</p>
                         <time className="block text-[10px] text-foreground/40 mt-2">
@@ -269,24 +272,30 @@ export default function ChatClient({
                     ))
                   )}
                 </div>
-                <form onSubmit={sendMessage} className="border-t border-rose-100 p-3 flex gap-2">
+                <form onSubmit={sendMessage} className="flex gap-2 border-t border-rose-100 p-3">
                   <input
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     maxLength={2000}
                     placeholder="Tulis pesan…"
                     aria-label="Pesan chat"
-                    className="flex-1 rounded-xl border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    disabled={selectedTicket.status === "resolved" || selectedTicket.status === "closed"}
+                    className="min-w-0 flex-1 rounded-xl border border-border px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:bg-gray-50 sm:px-4"
                   />
                   <button
                     type="submit"
-                    disabled={!message.trim() || sending}
-                    className="rounded-xl bg-primary px-4 text-white disabled:opacity-50"
+                    disabled={!message.trim() || sending || selectedTicket.status === "resolved" || selectedTicket.status === "closed"}
+                    className="h-11 w-11 shrink-0 rounded-xl bg-primary text-white disabled:opacity-50 sm:w-auto sm:px-4"
                     aria-label="Kirim pesan"
                   >
                     <Send className="h-4 w-4" />
                   </button>
                 </form>
+                {(selectedTicket.status === "resolved" || selectedTicket.status === "closed") && (
+                  <p className="px-4 pb-3 text-xs text-foreground/50">
+                    Percakapan ini sudah selesai dan disimpan di riwayat.
+                  </p>
+                )}
               </>
             ) : (
               <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-foreground/50">
