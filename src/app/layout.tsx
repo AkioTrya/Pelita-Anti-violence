@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Providers } from "@/components/Providers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,17 +23,18 @@ export const metadata: Metadata = {
     "Pendampingan untuk mencegah dan menangani bullying, putus sekolah, pernikahan dini, dan KDRT di Kabupaten PALI.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="id">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased gradient-bg flex flex-col min-h-screen`}
       >
-        <Providers>
+        <Providers session={session}>
           <Header />
           <main className="flex-1">
             {children}
