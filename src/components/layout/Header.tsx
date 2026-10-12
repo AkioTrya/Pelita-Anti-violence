@@ -10,7 +10,7 @@ import { canAccessStaffDashboard } from "@/lib/staff-roles";
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
-  const sessionUser = session?.user as { name?: string; role?: string } | undefined;
+  const sessionUser = session?.user as { name?: string; role?: string; username?: string } | undefined;
   const isSignedIn = status === "authenticated";
   const dashboardHref = canAccessStaffDashboard(sessionUser?.role) ? "/admin" : "/profil";
   const dashboardLabel = canAccessStaffDashboard(sessionUser?.role) ? "Dashboard" : "Profil";
@@ -63,7 +63,7 @@ export function Header() {
               <span className="inline-flex max-w-44 items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
                 <span className="truncate">
-                  Masuk sebagai {sessionUser?.name || "Pengguna"}
+                  Masuk sebagai {sessionUser?.username || sessionUser?.name || "Pengguna"}
                 </span>
               </span>
               <Link href={dashboardHref}>
@@ -133,7 +133,7 @@ export function Header() {
                   <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
                     <span className="min-w-0 truncate">
-                      Sudah masuk sebagai <strong>{sessionUser?.name || "Pengguna"}</strong>
+                      Sudah masuk sebagai <strong>{sessionUser?.username || sessionUser?.name || "Pengguna"}</strong>
                     </span>
                   </div>
                   <Link href={dashboardHref} onClick={() => setIsMobileMenuOpen(false)}>

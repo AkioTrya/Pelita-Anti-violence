@@ -104,7 +104,8 @@ export default function ProfilPage() {
     );
   }
 
-  const username = session?.user?.email || session?.user?.name || "Pengguna PELITA";
+  const sessionUser = session?.user as { username?: string } | undefined;
+  const username = sessionUser?.username || session?.user?.email || "Pengguna PELITA";
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-6 sm:py-10">
