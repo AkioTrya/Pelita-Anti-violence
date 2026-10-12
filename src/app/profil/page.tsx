@@ -104,7 +104,7 @@ export default function ProfilPage() {
     );
   }
 
-  const name = session?.user?.name || "Pengguna PELITA";
+  const username = session?.user?.email || session?.user?.name || "Pengguna PELITA";
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-6 sm:py-10">
@@ -115,7 +115,7 @@ export default function ProfilPage() {
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary sm:h-24 sm:w-24">
                 <User className="h-10 w-10 sm:h-12 sm:w-12" />
               </div>
-              <h1 className="max-w-full break-words text-xl font-bold">{name}</h1>
+              <h1 className="max-w-full break-words text-xl font-bold">{username}</h1>
               <p className="mb-6 text-sm text-foreground/60">Akun pengguna PELITA</p>
               <Button
                 variant="outline"
