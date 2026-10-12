@@ -7,6 +7,7 @@ import {
   LayoutDashboard, FileText, MessageSquare, LogOut,
   ChevronRight, CheckCircle, Clock, AlertCircle, X
 } from "lucide-react";
+import { canAccessStaffDashboard, canViewReports, isStaffMessage } from "@/lib/staff-roles";
 
 type Ticket = {
   id: string;
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
-    if (status === "authenticated" && user?.role !== "admin" && user?.role !== "consultant")
+    if (status === "authenticated" && !canAccessStaffDashboard(user?.role))
       router.push("/");
   }, [status, user, router]);
 
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
     if (status !== "authenticated") return;
     Promise.all([
       fetch("/api/tickets").then((r) => r.json()),
-      user?.role === "admin" ? fetch("/api/reports").then((r) => r.json()) : Promise.resolve([]),
+      canViewReports(user?.role) ? fetch("/api/reports").then((r) => r.json()) : Promise.resolve([]),
     ]).then(([t, r]) => {
       setTickets(Array.isArray(t) ? t : []);
       setReports(Array.isArray(r) ? r : []);
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
           {[
             { id: "overview", icon: LayoutDashboard, label: "Ringkasan" },
             { id: "tickets", icon: FileText, label: "Tiket" },
-            { id: "reports", icon: AlertCircle, label: "Laporan" },
+            ...(canViewReports(user?.role) ? [{ id: "reports", icon: AlertCircle, label: "Laporan" }] : []),
             { id: "chat", icon: MessageSquare, label: "Chat" },
           ].map((item) => (
             <button
@@ -201,7 +202,7 @@ export default function AdminDashboard() {
 
         {/* Mobile Tabs */}
         <div className="md:hidden flex gap-2 overflow-x-auto pb-2 mb-4">
-          {["overview", "tickets", "reports", "chat"].map((tab) => (
+          {["overview", "tickets", ...(canViewReports(user?.role) ? ["reports"] : []), "chat"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as typeof activeTab)}
@@ -394,12 +395,12 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex-1 overflow-auto p-4 space-y-3">
                       {messages.map((m) => (
-                        <div key={m.id} className={`flex gap-2 ${m.user.role === "admin" || m.user.role === "consultant" ? "flex-row-reverse" : ""}`}>
+                        <div key={m.id} className={`flex gap-2 ${isStaffMessage(m.user.role) ? "flex-row-reverse" : ""}`}>
                           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                             {m.user.name[0]}
                           </div>
                           <div className={`max-w-xs rounded-2xl px-4 py-2 text-sm ${
-                            m.user.role === "admin" || m.user.role === "consultant"
+                            isStaffMessage(m.user.role)
                               ? "bg-primary text-white rounded-tr-sm"
                               : "bg-rose-50 text-foreground rounded-tl-sm"
                           }`}>

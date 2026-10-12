@@ -4,8 +4,9 @@ import { rateLimit } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { canAccessChatChannel } from "@/lib/chat-routing";
+import { canManageAllTickets } from "@/lib/staff-roles";
 
-// PATCH /api/tickets/[id] — update status (admin/consultant only)
+// PATCH /api/tickets/[id] — update status (staff only)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +18,8 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = session.user as { role?: string; email?: string | null };
-  if (user.role !== "admin" && user.role !== "consultant")
+  const canManageTickets = canManageAllTickets(user.role);
+  if (!canManageTickets && user.role !== "consultant")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -27,7 +29,7 @@ export async function PATCH(
   });
   if (!existingTicket) return NextResponse.json({ error: "Tiket tidak ditemukan." }, { status: 404 });
   if (
-    user.role === "consultant" &&
+    !canManageTickets &&
     !canAccessChatChannel(user, existingTicket.channel)
   ) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

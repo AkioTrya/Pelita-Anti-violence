@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, hasSqlInjection, sanitizeInput } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { canViewReports } from "@/lib/staff-roles";
 
 // Kategori mapping to handling role
 const kategoriToRole: Record<string, string> = {
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
   );
 }
 
-// GET /api/reports — admin only
+// GET /api/reports — report staff or the authenticated user's own reports
 export async function GET(req: NextRequest) {
   const limited = rateLimit(req, 30);
   if (limited) return limited;
@@ -107,7 +108,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(reports);
   }
 
-  if (user.role !== "admin")
+  if (!canViewReports(user.role))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const reports = await prisma.report.findMany({

@@ -1,4 +1,5 @@
 import { normalizeUsername } from "@/lib/auth-seed";
+import { canManageAllTickets } from "@/lib/staff-roles";
 
 export type ChatChannel = "bk" | "peer";
 
@@ -10,7 +11,7 @@ export function getAssignedChatChannels(user: {
   role?: string | null;
   email?: string | null;
 }): ChatChannel[] {
-  if (user.role === "admin") return ["bk", "peer"];
+  if (canManageAllTickets(user.role ?? undefined)) return ["bk", "peer"];
   if (user.role !== "consultant") return [];
 
   const username = normalizeUsername(user.email ?? undefined);
@@ -36,6 +37,6 @@ export function canAccessChatChannel(
   user: { role?: string | null; email?: string | null },
   channel: string
 ): boolean {
-  if (user.role === "admin") return true;
+  if (canManageAllTickets(user.role ?? undefined)) return true;
   return isChatChannel(channel) && getAssignedChatChannels(user).includes(channel);
 }

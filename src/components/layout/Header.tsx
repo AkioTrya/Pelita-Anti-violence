@@ -5,16 +5,15 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { User, Menu, X, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
+import { canAccessStaffDashboard } from "@/lib/staff-roles";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const sessionUser = session?.user as { name?: string; role?: string } | undefined;
   const isSignedIn = status === "authenticated";
-  const dashboardHref =
-    sessionUser?.role === "admin" || sessionUser?.role === "consultant" ? "/admin" : "/profil";
-  const dashboardLabel =
-    sessionUser?.role === "admin" || sessionUser?.role === "consultant" ? "Dashboard" : "Profil";
+  const dashboardHref = canAccessStaffDashboard(sessionUser?.role) ? "/admin" : "/profil";
+  const dashboardLabel = canAccessStaffDashboard(sessionUser?.role) ? "Dashboard" : "Profil";
 
   const handleSignOut = () => {
     setIsMobileMenuOpen(false);

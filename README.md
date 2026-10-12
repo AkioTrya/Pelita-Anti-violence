@@ -46,6 +46,21 @@ It will not promote a regular account to administrator, and it never returns
 credentials. Remove `SEED_SECRET` after bootstrapping. Normal login does not
 create or reset accounts. Public registration creates user-role accounts only.
 
+To create five accounts for each staff role (consultant, admin, Dinas, and
+teacher), configure `DATABASE_URL` and run:
+
+```bash
+npm run create:staff-accounts
+```
+
+The script generates a different strong password for every new account and
+prints each new username/password once. Save those credentials securely;
+passwords are stored hashed and cannot be displayed again. Re-running the
+script leaves matching existing accounts and passwords unchanged. Dinas and
+teacher accounts can view/process tickets and view reports; admins retain full
+ticket/report access, and consultants remain limited to their assigned chat
+channels.
+
 Authenticated users can start a separate Guru BK or Teman Sebaya chat from
 Konseling. Set `BK_CHAT_USERNAME` to the Guru BK consultant's login username and
 `PEER_CHAT_USERNAMES` to Dipa's and Firda's login usernames, comma-separated.

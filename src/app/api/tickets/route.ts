@@ -4,8 +4,9 @@ import { rateLimit } from "@/lib/security";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getAssignedChatChannels, isChatChannel } from "@/lib/chat-routing";
+import { canManageAllTickets } from "@/lib/staff-roles";
 
-// GET /api/tickets — list tickets (admin: all, user: own)
+// GET /api/tickets — staff: all or assigned tickets, user: own
 export async function GET(req: NextRequest) {
   const limited = rateLimit(req, 60);
   if (limited) return limited;
@@ -14,14 +15,14 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = session.user as { id?: string; role?: string; email?: string | null };
-  const isAdmin = user.role === "admin";
-  const isStaff = isAdmin || user.role === "consultant";
+  const canManageTickets = canManageAllTickets(user.role);
+  const isStaff = canManageTickets || user.role === "consultant";
   if (!isStaff && !user.id) {
     return NextResponse.json({ error: "Sesi pengguna tidak valid." }, { status: 401 });
   }
 
   const tickets =
-    isAdmin
+    canManageTickets
       ? await prisma.ticket.findMany({
           include: { user: { select: { name: true, username: true } }, messages: true },
           orderBy: { createdAt: "desc" },
