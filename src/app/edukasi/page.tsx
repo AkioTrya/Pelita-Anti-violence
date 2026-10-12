@@ -114,10 +114,10 @@ export default function EdukasiPage() {
   ];
 
   const contacts = [
-    { name: "Hotline Anak Nasional", number: "1500-771", desc: "Kementerian PPPA, 24 jam" },
-    { name: "SIMFONI PPA", number: "1500-771", desc: "Sistem Informasi Online Perlindungan Perempuan dan Anak" },
-    { name: "Yayasan Pulih", number: "021-7884-5555", desc: "Konseling psikologi" },
-    { name: "Into The Light", number: "119 ext 8", desc: "Hotline pencegahan bunuh diri" },
+    { name: "Hotline Anak Nasional", desc: "Kementerian PPPA, 24 jam" },
+    { name: "SIMFONI PPA", desc: "Sistem Informasi Online Perlindungan Perempuan dan Anak" },
+    { name: "Yayasan Pulih", desc: "Konseling psikologi" },
+    { name: "Into The Light", desc: "Hotline pencegahan bunuh diri" },
   ];
 
   return (
@@ -179,20 +179,18 @@ export default function EdukasiPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {contacts.map((c, i) => (
-              <a
+              <div
                 key={i}
-                href={`tel:${c.number.replace(/[^0-9]/g, "")}`}
-                className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-rose-50 transition-all group"
+                className="flex items-start gap-4 p-4 rounded-xl border border-border group"
               >
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
                   <Phone className="h-4 w-4 text-primary group-hover:text-white" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">{c.name}</p>
-                  <p className="text-primary font-bold">{c.number}</p>
                   <p className="text-xs text-foreground/50 mt-0.5">{c.desc}</p>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
